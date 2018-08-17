@@ -7,14 +7,18 @@
   <style>
     body{ font-family: 'Lato', sans-serif; }
     h1 { text-align: center; font-size: 48px; }
+    #app {
+      font-size: 30px;
+    }
   </style>
 </head>
 <body>
   <h1>Hello Service Worker Cache!</h1>
   <!-- JavaScript -->
+  <div id="app">222</div>
   <script async src="./js/script.js"></script>
   <script>
-  // Register the service worker
+  // 注册 sw
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw-cachefirst.js').then(function(registration) {
       // Registration was successful
@@ -24,6 +28,23 @@
       console.log('ServiceWorker registration failed: ', err);
     });
   }
+  </script>
+  <script>
+    //创建异步对象  
+    var xhr = new XMLHttpRequest();
+    //设置请求的类型及url
+    //post请求一定要添加请求头才行不然会报错
+    xhr.open('post', 'https://test-api.layuva.com/gateway');
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    //发送请求
+    xhr.send('method=order.test&_app-key=MjIyMg==');
+    xhr.onreadystatechange = function () {
+      // 这步为判断服务器是否正确响应
+      if (xhr.readyState == 4 && xhr.status == 200) {
+        console.log(JSON.parse(xhr.responseText));
+        document.getElementById('app').innerHTML = JSON.parse(xhr.responseText).data.time
+      }
+    };
   </script>
 </body>
 </html>

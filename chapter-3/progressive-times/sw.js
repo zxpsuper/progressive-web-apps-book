@@ -1,20 +1,30 @@
-var cacheName = 'latestNews-v1';
+var cacheName = 'latestNews-v2';
 
 // Cache our known resources during install
 self.addEventListener('install', event => {
+  console.log('status', 'install')
   event.waitUntil(
     caches.open(cacheName)
-    .then(cache => cache.addAll([
-      './js/main.js',
-      './js/article.js',
-      './images/newspaper.svg',
-      './css/site.css',
-      './data/latest.json',
-      './data/data-1.json',
-      './article.html',
-      './index.html'
-    ]))
+    .then(cache => {
+      cache.addAll([])
+      // 立即变为激活状态
+      self.skipWaiting();
+    })
   );
+});
+
+// 监听activate事件，激活后通过cache的key来判断是否更新cache中的静态资源
+self.addEventListener('activate', function (e) {
+  console.log('Service Worker 状态： activate');
+  var cachePromise = caches.keys().then(function (keys) {
+      return Promise.all(keys.map(function (key) {
+          if (key !== cacheName) {
+              return caches.delete(key);
+          }
+      }));
+  })
+  e.waitUntil(cachePromise);
+  return self.clients.claim();
 });
 
 // Cache any new resources as they are fetched
@@ -36,6 +46,7 @@ self.addEventListener('fetch', function(event) {
           var responseToCache = response.clone();
           caches.open(cacheName)
           .then(function(cache) {
+            console.log(111)
             cache.put(event.request, responseToCache);
           });
 

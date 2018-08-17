@@ -4,6 +4,7 @@ self.addEventListener('fetch', function(event) {
   event.respondWith(
     caches.match(event.request)
     .then(function(response) {
+      console.log(response, 222)
       if (response) {
         return response;
       }
